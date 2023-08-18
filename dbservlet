@@ -1,0 +1,52 @@
+package booking;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.gson.Gson;
+
+public class DbServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		ArrayList<String> places = new ArrayList<>();
+		try {
+
+			Class.forName("org.postgresql.Driver");
+
+			Connection con = DriverManager.getConnection("jdbc:postgresql://192.168.110.48:5432/plf_training",
+					"plf_training_admin", "pff123");
+
+			Statement st = con.createStatement();
+
+			ResultSet rs = st.executeQuery("select * from places");
+
+			while (rs.next()) {
+				places.add(rs.getString(1));
+			}
+
+			con.close();
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		String json = new Gson().toJson(places);
+		response.getWriter().write(json);
+
+	}
+
+}
